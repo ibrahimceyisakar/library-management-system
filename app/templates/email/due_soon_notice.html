@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .book-item { margin: 10px 0; padding: 10px; background-color: #f8f9fa; }
+        .reminder { color: #007bff; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h2>Library Books Due Soon</h2>
+    <p>Dear {{ patron_name }},</p>
+    
+    <p class="reminder">This is a friendly reminder that the following book(s) are due soon:</p>
+    
+    {% for book in due_books %}
+    <div class="book-item">
+        <p><strong>Title:</strong> {{ book.title }}<br>
+           <strong>Author:</strong> {{ book.author }}<br>
+           <strong>Due Date:</strong> {{ book.due_date.strftime('%Y-%m-%d') }}</p>
+    </div>
+    {% endfor %}
+    
+    <p>Please ensure these items are returned by their due date to avoid any late fees.</p>
+    
+    <p>If you need more time, please consider renewing these items through our online system or by visiting the library.</p>
+    
+    <p>Best regards,<br>
+    Library Management System</p>
+</body>
+</html>

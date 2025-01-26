@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .book-item { margin: 10px 0; }
+        .warning { color: #dc3545; }
+    </style>
+</head>
+<body>
+    <h2>Library Book Overdue Notice</h2>
+    <p>Dear {{ patron_name }},</p>
+    
+    <p>Our records indicate that you have the following overdue book(s):</p>
+    
+    {% for book in overdue_books %}
+    <div class="book-item">
+        <p><strong>Title:</strong> {{ book.title }}<br>
+           <strong>Author:</strong> {{ book.author }}<br>
+           <strong>Due Date:</strong> {{ book.due_date.strftime('%Y-%m-%d') }}<br>
+           <strong>Days Overdue:</strong> {{ book.days_overdue }}</p>
+    </div>
+    {% endfor %}
+    
+    <p class="warning">Please return these books to the library as soon as possible to avoid additional fees.</p>
+    
+    <p>If you have already returned these items, please disregard this notice.</p>
+    
+    <p>Best regards,<br>
+    Library Management System</p>
+</body>
+</html>
