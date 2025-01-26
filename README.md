@@ -102,18 +102,74 @@ A modern library management system built with FastAPI, Celery, and PostgreSQL. T
 ```
 library-management-api/
 ├── app/
-│   ├── models/        # Database models
-│   ├── routes/        # API endpoints
-│   ├── tasks/         # Celery tasks
-│   ├── templates/     # Email templates
-│   └── utils/         # Utility functions
-├── docker/           # Docker configuration
-├── tests/           # Test cases
-├── .env.example     # Environment variables template
-├── docker-compose.yml
-├── Dockerfile
-└── requirements.txt
+│   ├── config/         # Configuration files
+│   │   ├── __init__.py
+│   │   └── celery_config.py
+│   ├── database/       # Database configuration
+│   │   ├── __init__.py
+│   │   └── database.py
+│   ├── models/         # SQLAlchemy models
+│   │   ├── __init__.py
+│   │   └── models.py
+│   ├── routes/         # API endpoints
+│   │   ├── __init__.py
+│   │   ├── books.py
+│   │   ├── checkouts.py
+│   │   └── patrons.py
+│   ├── schemas/        # Pydantic models for request/response
+│   │   ├── __init__.py
+│   │   ├── book.py
+│   │   ├── checkout.py
+│   │   └── patron.py
+│   ├── tasks/          # Celery tasks
+│   │   ├── __init__.py
+│   │   └── library_tasks.py
+│   ├── templates/      # Email templates
+│   │   └── email/
+│   │       ├── due_soon_notice.html
+│   │       └── overdue_notice.html
+│   └── utils/          # Utility functions
+│       └── __init__.py
+├── .env.example        # Environment variables template
+├── .gitignore         # Git ignore file
+├── Dockerfile         # Docker configuration
+├── README.md         # Project documentation
+├── celery_worker.py  # Celery worker configuration
+├── docker-compose.yml # Docker services configuration
+├── main.py          # FastAPI application entry point
+└── requirements.txt  # Python dependencies
 ```
+
+### Key Components
+
+1. **API Layer** (`app/routes/`)
+   - REST endpoints for books, patrons, and checkouts
+   - Input validation using Pydantic models
+   - Error handling and responses
+
+2. **Data Layer** (`app/models/`, `app/database/`)
+   - SQLAlchemy models and relationships
+   - Database connection management
+   - Migration support
+
+3. **Schema Layer** (`app/schemas/`)
+   - Pydantic models for request/response validation
+   - Data serialization/deserialization
+   - API documentation schemas
+
+4. **Task Processing** (`app/tasks/`, `app/config/`)
+   - Automated email notifications
+   - Report generation
+   - Task scheduling configuration
+
+5. **Templates** (`app/templates/`)
+   - HTML email templates
+   - Notification formatting
+
+6. **Configuration**
+   - Environment-based settings
+   - Docker containerization
+   - Celery task queues
 
 ### Adding New Features
 
