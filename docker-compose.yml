@@ -14,10 +14,10 @@ services:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/library_db
       - REDIS_URL=redis://redis:6379/0
       - SMTP_HOST=smtp.gmail.com
-      - SMTP_PORT=587
-      - SMTP_USERNAME=${SMTP_USERNAME:-your-email@gmail.com}
-      - SMTP_PASSWORD=${SMTP_PASSWORD:-your-app-password}
-      - SMTP_FROM=${SMTP_FROM:-library@example.com}
+      - SMTP_PORT=465
+      - SMTP_USERNAME=your_smtp_username
+      - SMTP_PASSWORD=your_smtp_password
+      - SMTP_FROM_EMAIL=noreply@yourdomain.com
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
@@ -37,10 +37,10 @@ services:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/library_db
       - REDIS_URL=redis://redis:6379/0
       - SMTP_HOST=smtp.gmail.com
-      - SMTP_PORT=587
-      - SMTP_USERNAME=${SMTP_USERNAME:-your-email@gmail.com}
-      - SMTP_PASSWORD=${SMTP_PASSWORD:-your-app-password}
-      - SMTP_FROM=${SMTP_FROM:-library@example.com}
+      - SMTP_PORT=465
+      - SMTP_USERNAME=your_smtp_username
+      - SMTP_PASSWORD=your_smtp_password
+      - SMTP_FROM_EMAIL=noreply@yourdomain.com
     restart: unless-stopped
 
   celery_beat:
@@ -56,10 +56,10 @@ services:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/library_db
       - REDIS_URL=redis://redis:6379/0
       - SMTP_HOST=smtp.gmail.com
-      - SMTP_PORT=587
-      - SMTP_USERNAME=${SMTP_USERNAME:-your-email@gmail.com}
-      - SMTP_PASSWORD=${SMTP_PASSWORD:-your-app-password}
-      - SMTP_FROM=${SMTP_FROM:-library@example.com}
+      - SMTP_PORT=465
+      - SMTP_USERNAME=your_smtp_username
+      - SMTP_PASSWORD=your_smtp_password
+      - SMTP_FROM_EMAIL=noreply@yourdomain.com
     restart: unless-stopped
 
   redis:
