@@ -17,11 +17,14 @@ def get_db_session():
 
 @celery.task
 def send_overdue_notices():
+    print("Starting overdue notices task (these should run each minute)..")
     db = get_db_session()
     current_time = datetime.utcnow()
+    print(f"Current time: {current_time}")
     
     try:
         # Get all overdue checkouts
+        print("Querying overdue checkouts...")
         overdue_checkouts = (
             db.query(Checkout)
             .filter(
@@ -30,6 +33,7 @@ def send_overdue_notices():
             )
             .all()
         )
+        print(f"Found {len(overdue_checkouts)} overdue checkouts")
         
         # Group checkouts by patron
         patron_checkouts = {}
@@ -37,11 +41,14 @@ def send_overdue_notices():
             if checkout.patron_id not in patron_checkouts:
                 patron_checkouts[checkout.patron_id] = []
             patron_checkouts[checkout.patron_id].append(checkout)
+        print(f"Grouped checkouts for {len(patron_checkouts)} patrons")
         
         # Send emails to each patron
         for patron_id, checkouts in patron_checkouts.items():
+            print(f"Processing patron {patron_id}...")
             patron = db.query(Patron).filter(Patron.id == patron_id).first()
             if not patron:
+                print(f"Patron {patron_id} not found, skipping...")
                 continue
                 
             overdue_books = []
@@ -62,29 +69,35 @@ def send_overdue_notices():
                 "overdue_books": overdue_books
             }
             
+            print(f"Sending email to {patron.email}...")
             asyncio.run(send_email(
                 to_email=patron.email,
                 subject="Library Books Overdue Notice",
                 template_name="overdue_notice",
                 template_data=template_data
             ))
+            print(f"Email sent to {patron.email}")
             
     finally:
         db.close()
+        print("Overdue notices task completed")
 
 @celery.task
 def generate_weekly_report():
+    print("Starting weekly report task...")
     db = get_db_session()
     current_time = datetime.utcnow()
     week_ago = current_time - timedelta(days=7)
     
     try:
         # Get checkout statistics
+        print("Querying checkout statistics...")
         checkouts = (
             db.query(Checkout)
             .filter(Checkout.checkout_date >= week_ago)
             .all()
         )
+        print(f"Found {len(checkouts)} checkouts")
         
         # Prepare data for the report
         checkout_data = []
@@ -125,20 +138,24 @@ def generate_weekly_report():
             ])
             stats.to_excel(writer, sheet_name='Statistics', index=False)
             
+        print(f"Weekly report saved to {report_path}")
         return report_path
         
     finally:
         db.close()
+        print("Weekly report task completed")
 
 @celery.task
 def send_due_soon_notices():
     """Send reminders for books due in the next 2 days."""
+    print("Starting due soon notices task...")
     db = get_db_session()
     current_time = datetime.utcnow()
     due_soon = current_time + timedelta(days=2)
     
     try:
         # Get checkouts due in the next 2 days
+        print("Querying due soon checkouts...")
         upcoming_due = (
             db.query(Checkout)
             .filter(
@@ -147,6 +164,7 @@ def send_due_soon_notices():
             )
             .all()
         )
+        print(f"Found {len(upcoming_due)} due soon checkouts")
         
         # Group by patron
         patron_checkouts = {}
@@ -157,8 +175,10 @@ def send_due_soon_notices():
         
         # Send emails
         for patron_id, checkouts in patron_checkouts.items():
+            print(f"Processing patron {patron_id}...")
             patron = db.query(Patron).filter(Patron.id == patron_id).first()
             if not patron:
+                print(f"Patron {patron_id} not found, skipping...")
                 continue
             
             due_books = []
@@ -177,25 +197,30 @@ def send_due_soon_notices():
                 "due_books": due_books
             }
             
+            print(f"Sending email to {patron.email}...")
             asyncio.run(send_email(
                 to_email=patron.email,
                 subject="Books Due Soon Reminder",
                 template_name="due_soon_notice",
                 template_data=template_data
             ))
+            print(f"Email sent to {patron.email}")
     
     finally:
         db.close()
+        print("Due soon notices task completed")
 
 @celery.task
 def generate_monthly_analytics():
     """Generate monthly analytics report with detailed statistics."""
+    print("Starting monthly analytics task...")
     db = get_db_session()
     current_time = datetime.utcnow()
     month_ago = current_time - timedelta(days=30)
     
     try:
         # Gather monthly statistics
+        print("Querying monthly statistics...")
         monthly_data = {
             "total_checkouts": db.query(Checkout).filter(
                 Checkout.checkout_date >= month_ago
@@ -230,6 +255,7 @@ def generate_monthly_analytics():
                 )
             ).filter(Checkout.checkout_date >= month_ago).scalar()
         }
+        print("Monthly statistics gathered")
         
         # Create reports directory if it doesn't exist
         reports_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "reports")
@@ -260,7 +286,9 @@ def generate_monthly_analytics():
                                           columns=['Title', 'Author', 'Checkouts'])
             popular_books_df.to_excel(writer, sheet_name='Popular Books', index=False)
         
+        print(f"Monthly analytics report saved to {report_path}")
         return report_path
         
     finally:
         db.close()
+        print("Monthly analytics task completed")

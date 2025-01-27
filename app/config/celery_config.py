@@ -18,7 +18,7 @@ beat_schedule = {
     # Overdue Book Notifications
     'daily-overdue-notices': {
         'task': 'app.tasks.library_tasks.send_overdue_notices',
-        'schedule': crontab(hour=9, minute=0),  # Daily at 9 AM UTC
+        'schedule': crontab(hour=9, minute=0),  # Run daily at 9 AM UTC
         'options': {'queue': 'notifications'},
     },
     
