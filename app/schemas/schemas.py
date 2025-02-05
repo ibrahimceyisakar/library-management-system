@@ -19,13 +19,27 @@ class Book(BookBase):
     class Config:
         from_attributes = True
 
+# Token Schema
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
 # Patron Schemas
 class PatronBase(BaseModel):
     name: str
     email: EmailStr
+    username: str
+    is_active: bool = True
+    is_superuser: bool = False
 
 class PatronCreate(PatronBase):
-    pass
+    password: str
+
+class PatronUpdate(BaseModel):
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    username: Optional[str] = None
+    password: Optional[str] = None
 
 class Patron(PatronBase):
     id: int
