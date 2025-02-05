@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.database.database import get_db
 from app.models import models
-from app.schemas import user as user_schemas
+from app.schemas import schemas as user_schemas
 from app.utils.auth import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
     create_access_token,
@@ -35,9 +35,9 @@ async def login_for_access_token(
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-@router.post("/users/", response_model=user_schemas.User)
+@router.post("/users/", response_model=user_schemas.Patron)
 async def create_user(
-    user: user_schemas.UserCreate,
+    user: user_schemas.PatronCreate,
     db: Session = Depends(get_db),
     current_user: models.Patron = Depends(get_current_superuser)
 ):
@@ -62,13 +62,13 @@ async def create_user(
     db.refresh(db_user)
     return db_user
 
-@router.get("/users/me/", response_model=user_schemas.User)
+@router.get("/users/me/", response_model=user_schemas.Patron)
 async def read_users_me(current_user: models.Patron = Depends(get_current_active_user)):
     return current_user
 
-@router.put("/users/me/", response_model=user_schemas.User)
+@router.put("/users/me/", response_model=user_schemas.Patron)
 async def update_user_me(
-    user: user_schemas.UserUpdate,
+    user: user_schemas.PatronUpdate,
     current_user: models.Patron = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):

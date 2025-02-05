@@ -9,7 +9,7 @@ from functools import wraps
 
 from app.database.database import get_db
 from app.models import models
-from app.schemas import user as user_schemas
+from app.schemas import schemas as user_schemas
 
 # Configuration
 SECRET_KEY = "your-secret-key-here"  # Change this to a secure secret key
