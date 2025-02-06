@@ -47,7 +47,6 @@ beat_schedule = {
 task_annotations = {
     'app.tasks.library_tasks.send_overdue_notices': {
         'rate_limit': '10/m',  # Limit to 10 tasks per minute
-        'max_retries': 3,
     },
     'app.tasks.library_tasks.generate_weekly_report': {
         'time_limit': 300,  # 5 minutes timeout
