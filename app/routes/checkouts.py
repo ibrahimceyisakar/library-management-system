@@ -14,11 +14,9 @@ from app.utils.auth import (
 router = APIRouter()
 
 @router.post("/checkouts/", response_model=schemas.Checkout)
-@normal_user_required
 async def checkout_book(
     checkout: schemas.CheckoutCreate,
     db: Session = Depends(get_db),
-    current_user: models.Patron = Depends(get_current_active_user)
 ):
     # Check if book exists and is available
     book = db.query(models.Book).filter(models.Book.id == checkout.book_id).first()
@@ -27,14 +25,10 @@ async def checkout_book(
     if book.available_quantity <= 0:
         raise HTTPException(status_code=400, detail="Book is not available")
     
-    # Ensure user is checking out for themselves
-    if checkout.patron_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Cannot checkout book for another patron")
-    
     # Create checkout record
     db_checkout = models.Checkout(
         book_id=checkout.book_id,
-        patron_id=current_user.id,
+        patron_id=checkout.patron_id,
         due_date=checkout.due_date or datetime.utcnow() + timedelta(days=14)
     )
     
@@ -47,15 +41,14 @@ async def checkout_book(
     return db_checkout
 
 @router.post("/checkouts/{checkout_id}/return")
-@normal_user_required
 async def return_book(
     checkout_id: int,
+    patron_id: int,
     db: Session = Depends(get_db),
-    current_user: models.Patron = Depends(get_current_active_user)
 ):
     checkout = db.query(models.Checkout).filter(
         models.Checkout.id == checkout_id,
-        models.Checkout.patron_id == current_user.id
+        models.Checkout.patron_id == patron_id
     ).first()
     
     if not checkout:
@@ -76,38 +69,12 @@ async def return_book(
     db.refresh(checkout)
     return {"message": "Book returned successfully"}
 
-@router.get("/checkouts/", response_model=List[schemas.Checkout])
-@normal_user_required
-async def read_user_checkouts(
-    db: Session = Depends(get_db),
-    current_user: models.Patron = Depends(get_current_active_user)
-):
-    checkouts = db.query(models.Checkout).filter(
-        models.Checkout.patron_id == current_user.id
-    ).all()
-    return checkouts
-
-@router.get("/checkouts/overdue", response_model=List[schemas.Checkout])
-@normal_user_required
-async def read_user_overdue_checkouts(
-    db: Session = Depends(get_db),
-    current_user: models.Patron = Depends(get_current_active_user)
-):
-    current_time = datetime.utcnow()
-    overdue_checkouts = db.query(models.Checkout).filter(
-        models.Checkout.patron_id == current_user.id,
-        models.Checkout.due_date < current_time,
-        models.Checkout.is_returned == False
-    ).all()
-    return overdue_checkouts
-
 @router.get("/admin/checkouts/all", response_model=List[schemas.Checkout])
 @admin_required
 async def admin_list_all_checkouts(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-    current_user: models.Patron = Depends(get_current_active_user)
 ):
     """
     Admin endpoint to list all checkouts across all patrons.
@@ -120,7 +87,6 @@ async def admin_list_all_checkouts(
 @admin_required
 async def admin_list_all_overdue_checkouts(
     db: Session = Depends(get_db),
-    current_user: models.Patron = Depends(get_current_active_user)
 ):
     """
     Admin endpoint to list all overdue checkouts across all patrons.
