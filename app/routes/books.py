@@ -14,11 +14,9 @@ from app.utils.auth import (
 router = APIRouter()
 
 @router.post("/books/", response_model=schemas.Book)
-@admin_required
 async def create_book(
     book: schemas.BookCreate, 
     db: Session = Depends(get_db),
-    current_user: models.Patron = Depends(get_current_active_user)
 ):
     db_book = models.Book(
         title=book.title,
@@ -37,7 +35,6 @@ async def read_books(
     skip: int = 0, 
     limit: int = 100, 
     db: Session = Depends(get_db),
-    current_user: models.Patron = Depends(get_current_active_user)
 ):
     books = db.query(models.Book).offset(skip).limit(limit).all()
     return books
@@ -46,7 +43,6 @@ async def read_books(
 async def read_book(
     book_id: int, 
     db: Session = Depends(get_db),
-    current_user: models.Patron = Depends(get_current_active_user)
 ):
     book = db.query(models.Book).filter(models.Book.id == book_id).first()
     if book is None:
@@ -54,12 +50,10 @@ async def read_book(
     return book
 
 @router.put("/books/{book_id}", response_model=schemas.Book)
-@admin_required
 async def update_book(
     book_id: int, 
     book: schemas.BookCreate, 
     db: Session = Depends(get_db),
-    current_user: models.Patron = Depends(get_current_active_user)
 ):
     db_book = db.query(models.Book).filter(models.Book.id == book_id).first()
     if db_book is None:
@@ -73,11 +67,9 @@ async def update_book(
     return db_book
 
 @router.delete("/books/{book_id}")
-@admin_required
 async def delete_book(
     book_id: int, 
     db: Session = Depends(get_db),
-    current_user: models.Patron = Depends(get_current_active_user)
 ):
     db_book = db.query(models.Book).filter(models.Book.id == book_id).first()
     if db_book is None:
