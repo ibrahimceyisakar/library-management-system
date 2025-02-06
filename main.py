@@ -7,13 +7,13 @@ from app.management_commands.create_superuser import create_superuser
 from app.models import models
 
 # Recreate database tables
-recreate_database()
+# recreate_database()
 # Create superuser
-create_superuser(
-    username="admin",
-    email="superuser@example.com",
-    password="admin123"
-)
+# create_superuser(
+#     username="admin",
+#     email="superuser@example.com",
+#     password="admin123"
+# )
 
 # Configure OAuth2 security scheme
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
