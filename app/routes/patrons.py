@@ -1,3 +1,4 @@
+from app.utils.auth import get_password_hash
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
@@ -9,7 +10,13 @@ router = APIRouter()
 
 @router.post("/patrons/", response_model=schemas.Patron)
 def create_patron(patron: schemas.PatronCreate, db: Session = Depends(get_db)):
-    db_patron = models.Patron(name=patron.name, email=patron.email)
+    # Check if the email is already registered
+    db_patron = db.query(models.Patron).filter(models.Patron.email == patron.email).first()
+    if db_patron:
+        raise HTTPException(status_code=409, detail="Email already registered")
+    
+    hashed_password = get_password_hash(patron.password)
+    db_patron = models.Patron(name=patron.name, email=patron.email, hashed_password=hashed_password)
     db.add(db_patron)
     db.commit()
     db.refresh(db_patron)
