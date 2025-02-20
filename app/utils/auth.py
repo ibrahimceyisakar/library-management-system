@@ -76,14 +76,14 @@ async def get_current_user(
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
+        email: str = payload.get("sub")
+        if email is None:
             raise credentials_exception
-        token_data = user_schemas.TokenData(username=username)
+        token_data = user_schemas.TokenData(username=email)
     except JWTError:
         raise credentials_exception
 
-    user = db.query(models.Patron).filter(models.Patron.username == token_data.username).first()
+    user = db.query(models.Patron).filter(models.Patron.email == token_data.email).first()
     if user is None:
         raise credentials_exception
     return user

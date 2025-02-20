@@ -10,7 +10,6 @@ from app.models import models
 # recreate_database()
 # Create superuser
 # create_superuser(
-#     username="admin",
 #     email="superuser@example.com",
 #     password="admin123"
 # )

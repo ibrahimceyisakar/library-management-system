@@ -82,7 +82,6 @@ docker-compose logs -f
 # Access the web container
 docker-compose exec web python -m app.management_commands.create_superuser \
     --email admin@example.com \
-    --username admin \
     --password yourpassword
 ```
 
