@@ -22,7 +22,7 @@ async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
-    user = db.query(models.Patron).filter(models.Patron.username == form_data.username).first()
+    user = db.query(models.Patron).filter(models.Patron.email == form_data.email).first()
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -31,7 +31,7 @@ async def login_for_access_token(
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
+        data={"sub": user.email}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
@@ -44,15 +44,11 @@ async def create_user(
     db_user = db.query(models.Patron).filter(models.Patron.email == user.email).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
-    
-    db_user = db.query(models.Patron).filter(models.Patron.username == user.username).first()
-    if db_user:
-        raise HTTPException(status_code=400, detail="Username already registered")
+
     
     hashed_password = get_password_hash(user.password)
     db_user = models.Patron(
         email=user.email,
-        username=user.username,
         hashed_password=hashed_password,
         is_active=user.is_active,
         is_superuser=user.is_superuser
@@ -77,12 +73,6 @@ async def update_user_me(
         if db_user and db_user.id != current_user.id:
             raise HTTPException(status_code=400, detail="Email already registered")
         current_user.email = user.email
-    
-    if user.username:
-        db_user = db.query(models.Patron).filter(models.Patron.username == user.username).first()
-        if db_user and db_user.id != current_user.id:
-            raise HTTPException(status_code=400, detail="Username already registered")
-        current_user.username = user.username
     
     if user.password:
         current_user.hashed_password = get_password_hash(user.password)

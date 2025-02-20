@@ -28,7 +28,6 @@ class Token(BaseModel):
 class PatronBase(BaseModel):
     name: str
     email: EmailStr
-    username: str
     is_active: bool = True
     is_superuser: bool = False
 
@@ -38,7 +37,6 @@ class PatronCreate(PatronBase):
 class PatronUpdate(BaseModel):
     name: Optional[str] = None
     email: Optional[EmailStr] = None
-    username: Optional[str] = None
     password: Optional[str] = None
 
 class Patron(PatronBase):
